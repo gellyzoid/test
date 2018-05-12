@@ -4,8 +4,8 @@ apt-get -y install wget curl gcc make wget tzdata git libreadline-dev libncurses
 apt-get install upstart
 apt-get install checkinstall build-essential -y
 sleep 2
-wget -O softether-vpn-4-25.tar.gz http://softether-download.com/files/softether/v4.25-9656-rtm-2018.01.15-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.25-9656-rtm-2018.01.15-linux-x64-64bit.tar.gz
-tar -xzf softether-vpn-4-25.tar.gz
+wget http://www.softether-download.com/files/softether/v4.27-9666-beta-2018.04.21-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.27-9666-beta-2018.04.21-linux-x64-64bit.tar.gz
+tar xvfz softether-vpnserver-v4.27-9666-beta-2018.04.21-linux-x64-64bit.tar.gz
 cd vpnserver
 echo "Please press 1 for all the following questions."
 sleep 1
@@ -49,4 +49,3 @@ chmod 755 /etc/init.d/vpnserver
 update-rc.d vpnserver defaults
 echo "SoftEther VPN Server should now start as a system service from now on. Starting SoftEther VPN service..."
 ../etc/init.d/vpnserver start
-esac
