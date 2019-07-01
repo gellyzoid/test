@@ -427,7 +427,40 @@ function installQuestions () {
 				esac
 			;;
 		esac
-		
+		echo ""
+		echo "Choose which cipher you want to use for the control channel:"
+		case $CERT_TYPE in
+			1)
+				echo "   1) ECDHE-ECDSA-AES-128-GCM-SHA256 (recommended)"
+				echo "   2) ECDHE-ECDSA-AES-256-GCM-SHA384"
+				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
+					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
+				done
+				case $CC_CIPHER_CHOICE in
+					1)
+						CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
+					;;
+					2)
+						CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384"
+					;;
+				esac
+			;;
+			2)
+				echo "   1) ECDHE-RSA-AES-128-GCM-SHA256 (recommended)"
+				echo "   2) ECDHE-RSA-AES-256-GCM-SHA384"
+				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
+					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
+				done
+				case $CC_CIPHER_CHOICE in
+					1)
+						CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
+					;;
+					2)
+						CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
+					;;
+				esac
+			;;
+		esac
 		echo ""
 		echo "Choose what kind of Diffie-Hellman key you want to use:"
 		echo "   1) ECDH (recommended)"
@@ -504,10 +537,18 @@ function installQuestions () {
 				HMAC_ALG="none"
 			;;
 		esac
+		echo ""
+		echo "You can add an additional layer of security to the control channel with tls-auth and tls-crypt"
+		echo "tls-auth authenticates the packets, while tls-crypt authenticate and encrypt them."
+		echo "   1) tls-crypt (recommended)"
+		echo "   2) tls-auth"
+		until [[ $TLS_SIG =~ [1-2] ]]; do
+				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
+		done
 	fi
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
-	echo "You will be able to generate a client at the end f."
+	echo "You will be able to generate a client at the end of the installation."
 	APPROVE_INSTALL=${APPROVE_INSTALL:-n}
 	if [[ $APPROVE_INSTALL =~ n ]]; then
 		read -n1 -r -p "Press any key to continue..."
@@ -598,14 +639,9 @@ function installOpenVPN () {
 	esac
 
 	# Generate a random, alphanumeric identifier of 16 characters for CN and one for server name
-	sed -i 's|export KEY_COUNTRY="US"|export KEY_COUNTRY="PH"|' /etc/openvpn/easy-rsa/vars
-	sed -i 's|export KEY_PROVINCE="CA"|export KEY_PROVINCE="Batangas"|' /etc/openvpn/easy-rsa/vars
-	sed -i 's|export KEY_CITY="SanFrancisco"|export KEY_CITY="Batangas City"|' /etc/openvpn/easy-rsa/vars
-	sed -i 's|export KEY_ORG="Fort-Funston"|export KEY_ORG="CURSOR"|' /etc/openvpn/easy-rsa/vars
-	sed -i 's|export KEY_EMAIL="me@myhost.mydomain"|export KEY_EMAIL="crzdvoid08@gmail.com"|' /etc/openvpn/easy-rsa/vars
-	sed -i 's|export KEY_OU="MyOrganizationalUnit"|export KEY_OU="CPE"|' /etc/openvpn/easy-rsa/vars
-	sed -i 's|export KEY_NAME="EasyRSA"|export KEY_NAME="CPE"|' /etc/openvpn/easy-rsa/vars
-	sed -i 's|export KEY_OU=changeme|export KEY_OU=CPE|' /etc/openvpn/easy-rsa/vars
+	SERVER_CN="cn_$(head /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"
+	SERVER_NAME="server_$(head /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"
+	echo "set_var EASYRSA_REQ_CN $SERVER_CN" >> vars
 	# Create the PKI, set up the CA, the DH params and the server certificate
 	./easyrsa init-pki
 	./easyrsa --batch build-ca nopass
@@ -748,6 +784,10 @@ cert $SERVER_NAME.crt
 key $SERVER_NAME.key
 auth $HMAC_ALG
 cipher $CIPHER
+ncp-ciphers $CIPHER
+tls-server
+tls-version-min 1.2
+tls-cipher $CC_CIPHER
 status /var/log/openvpn/status.log
 verb 3" >> /etc/openvpn/server.conf
 
@@ -885,9 +925,15 @@ resolv-retry infinite
 nobind
 persist-key
 persist-tun
+remote-cert-tls server
+verify-x509-name $SERVER_NAME name
 auth $HMAC_ALG
 auth-nocache
 cipher $CIPHER
+tls-client
+tls-version-min 1.2
+tls-cipher $CC_CIPHER
+setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 verb 3" >> /etc/openvpn/client-template.txt
 
 if [[ $COMPRESSION_ENABLED == "y"  ]]; then
