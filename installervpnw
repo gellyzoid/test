@@ -427,7 +427,40 @@ function installQuestions () {
 				esac
 			;;
 		esac
-		
+		echo ""
+		echo "Choose which cipher you want to use for the control channel:"
+		case $CERT_TYPE in
+			1)
+				echo "   1) ECDHE-ECDSA-AES-128-GCM-SHA256 (recommended)"
+				echo "   2) ECDHE-ECDSA-AES-256-GCM-SHA384"
+				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
+					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
+				done
+				case $CC_CIPHER_CHOICE in
+					1)
+						CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
+					;;
+					2)
+						CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384"
+					;;
+				esac
+			;;
+			2)
+				echo "   1) ECDHE-RSA-AES-128-GCM-SHA256 (recommended)"
+				echo "   2) ECDHE-RSA-AES-256-GCM-SHA384"
+				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
+					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
+				done
+				case $CC_CIPHER_CHOICE in
+					1)
+						CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
+					;;
+					2)
+						CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
+					;;
+				esac
+			;;
+		esac
 		echo ""
 		echo "Choose what kind of Diffie-Hellman key you want to use:"
 		echo "   1) ECDH (recommended)"
@@ -504,6 +537,14 @@ function installQuestions () {
 				HMAC_ALG="none"
 			;;
 		esac
+		echo ""
+		echo "You can add an additional layer of security to the control channel with tls-auth and tls-crypt"
+		echo "tls-auth authenticates the packets, while tls-crypt authenticate and encrypt them."
+		echo "   1) tls-crypt (recommended)"
+		echo "   2) tls-auth"
+		until [[ $TLS_SIG =~ [1-2] ]]; do
+				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
+		done
 	fi
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
