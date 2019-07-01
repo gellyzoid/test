@@ -352,10 +352,9 @@ function installQuestions () {
 		echo "   3) AES-256-GCM"
 		echo "   4) AES-128-CBC"
 		echo "   5) AES-192-CBC"
-		echo "   6) AES-256-CBC"
-		echo "	 7) none"
-		until [[ "$CIPHER_CHOICE" =~ ^[1-7]$ ]]; do
-			read -rp "Cipher [1-7]: " -e -i 1 CIPHER_CHOICE
+		echo "   6) none"
+		until [[ "$CIPHER_CHOICE" =~ ^[1-6]$ ]]; do
+			read -rp "Cipher [1-6]: " -e -i 1 CIPHER_CHOICE
 		done
 		case $CIPHER_CHOICE in
 			1)
@@ -372,9 +371,6 @@ function installQuestions () {
 			;;
 			5)
 				CIPHER="AES-192-CBC"
-			;;
-			6)
-				CIPHER="AES-256-CBC"
 			;;
 			6)
 				CIPHER="none"
@@ -431,6 +427,7 @@ function installQuestions () {
 				esac
 			;;
 		esac
+		
 		echo ""
 		echo "Choose what kind of Diffie-Hellman key you want to use:"
 		echo "   1) ECDH (recommended)"
@@ -507,6 +504,8 @@ function installQuestions () {
 				HMAC_ALG="none"
 			;;
 		esac
+		done
+	fi
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
 	echo "You will be able to generate a client at the end of the installation."
@@ -783,7 +782,7 @@ verb 3" >> /etc/openvpn/server.conf
 		sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn-server@.service
 		# On fedora, the service hardcodes the ciphers. We want to manage the cipher ourselves, so we remove it from the service
 		if [[ "$OS" == "fedora" ]];then
-			sed -i 's|--cipher AES-256-GCM --ncp-ciphers AES-256-GCM:AES-128-GCM:AES-256-CBC:AES-128-CBC:BF-CBC||' /etc/systemd/system/openvpn-server@.service
+			sed -i 's|--cipher AES-256-GCM --ncp-ciphers AES-256-GCM:AES-128-GCM:none:AES-128-CBC:BF-CBC||' /etc/systemd/system/openvpn-server@.service
 		fi
 
 		systemctl daemon-reload
