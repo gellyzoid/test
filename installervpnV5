@@ -876,7 +876,6 @@ WantedBy=multi-user.target" > /etc/systemd/system/iptables-openvpn.service
 	echo "remote $IP $PORT
 dev tun
 resolv-retry infinite
-nobind
 persist-key
 persist-tun
 remote-cert-tls server
@@ -884,10 +883,6 @@ verify-x509-name $SERVER_NAME name
 auth $HMAC_ALG
 auth-nocache
 cipher $CIPHER
-tls-client
-tls-version-min 1.2
-tls-cipher $CC_CIPHER
-setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 verb 3" >> /etc/openvpn/client-template.txt
 
 if [[ $COMPRESSION_ENABLED == "y"  ]]; then
