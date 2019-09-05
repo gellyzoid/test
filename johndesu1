@@ -167,10 +167,9 @@ iptables -A INPUT -p udp --dport 8086  -m state --state NEW -j ACCEPT
 iptables -A INPUT -p tcp --dport 10000  -m state --state NEW -j ACCEPT
 
 
-	chmod +x /etc/iptables/add-openvpn-rules.sh
-
-	# Handle the rules via a systemd script
-	echo "[Unit]
+chmod +x /etc/iptables/add-openvpn-rules.sh
+# Handle the rules via a systemd script
+echo "[Unit]
 Description=iptables rules for OpenVPN
 Before=network-online.target
 Wants=network-online.target
@@ -180,6 +179,7 @@ Type=oneshot
 ExecStart=/etc/iptables/add-openvpn-rules.sh
 RemainAfterExit=yes
 
+[Install]
 WantedBy=multi-user.target" > /etc/systemd/system/iptables-openvpn.service
 
 	# Enable service and apply rules
