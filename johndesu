@@ -14,7 +14,6 @@ MYIP=$(wget -qO- ipv4.icanhazip.com);
 MYIP2="s/xxxxxxxxx/$MYIP/g";
 cd /root
 wget "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/plugin.tgz"
-wget "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Menu/bashmenu.zip"
 
 # disable ipv6
 echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
@@ -34,7 +33,7 @@ service webmin restart
 
 # install screenfetch
 cd
-wget -O /usr/bin/screenfetch "https://raw.githubusercontent.com/johndesu090/AutoScriptDebianStretch/master/Files/Plugins/screenfetch2"
+wget -O /usr/bin/screenfetch "https://raw.githubusercontent.com/johndesu090/AutoScriptDebianStretch/master/Files/Plugins/screenfetch"
 chmod +x /usr/bin/screenfetch
 echo "clear" >> .profile
 echo "screenfetch" >> .profile
@@ -169,7 +168,7 @@ chmod +x /etc/openvpn/ca.crt
 tar -xzvf /root/plugin.tgz -C /usr/lib/openvpn/
 chmod +x /usr/lib/openvpn/*
 cat > /etc/openvpn/server.conf <<-END
-port 110
+port 1147
 proto tcp
 dev tun
 ca ca.crt
@@ -205,7 +204,7 @@ END
 systemctl start openvpn@server
 #Create OpenVPN Config
 mkdir -p /home/vps/public_html
-cat > /home/vps/public_html/tupromo.ovpn <<-END
+cat > /home/vps/public_html/sun-tuctc.ovpn <<-END
 
 # Created by FordSenpai
 # https://fb.me/johndesu090
@@ -213,7 +212,7 @@ auth-user-pass
 client
 dev tun
 proto tcp
-remote $MYIP 110
+remote $MYIP 1147
 keepalive 10 120
 persist-key
 persist-tun
@@ -236,9 +235,9 @@ http-proxy-option CUSTOM-HEADER ""
 http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.0"
 
 END
-echo '<ca>' >> /home/vps/public_html/tupromo.ovpn
-cat /etc/openvpn/ca.crt >> /home/vps/public_html/tupromo.ovpn
-echo '</ca>' >> /home/vps/public_html/tupromo.ovpn
+echo '<ca>' >> /home/vps/public_html/sun-tuctc.ovpn
+cat /etc/openvpn/ca.crt >> /home/vps/public_html/sun-tuctc.ovpn
+echo '</ca>' >> /home/vps/public_html/sun-tuctc.ovpn
 
 cat > /home/vps/public_html/noload.ovpn <<-END
 
@@ -248,7 +247,7 @@ auth-user-pass
 client
 dev tun
 proto tcp
-remote $MYIP 110
+remote $MYIP 1147
 port 443
 persist-key
 persist-tun
@@ -260,7 +259,7 @@ lport 110
 float
 bind
 mute 2
-connect-retry 1 1
+connect-retry 2 2
 mute-replay-warnings
 redirect-gateway def1
 script-security 2
@@ -280,7 +279,7 @@ auth-user-pass
 client
 dev tun
 proto tcp
-remote $MYIP 110
+remote $MYIP 1147
 persist-key
 persist-tun
 resolv-retry infinite
@@ -309,6 +308,36 @@ echo '<ca>' >> /home/vps/public_html/fixplan.ovpn
 cat /etc/openvpn/ca.crt >> /home/vps/public_html/fixplan.ovpn
 echo '</ca>' >> /home/vps/public_html/fixplan.ovpn
 
+cat > /home/vps/public_html/default.ovpn <<-END
+
+# Created by FordSenpai
+# https://fb.me/johndesu090
+auth-user-pass
+client
+dev tun
+proto tcp
+remote $MYIP 1147
+persist-key
+persist-tun
+resolv-retry infinite
+comp-lzo
+remote-cert-tls server
+nobind
+verb 3
+mute 2
+connect-retry 0 1
+connect-retry-max 3355
+mute-replay-warnings
+redirect-gateway def1
+script-security 2
+cipher none
+auth none
+
+END
+echo '<ca>' >> /home/vps/public_html/default.ovpn
+cat /etc/openvpn/ca.crt >> /home/vps/public_html/default.ovpn
+echo '</ca>' >> /home/vps/public_html/default.ovpn
+
 cat > /home/vps/public_html/gowatchplay.ovpn <<-END
 
 # Created by FordSenpai
@@ -317,7 +346,7 @@ auth-user-pass
 client
 dev tun
 proto tcp
-remote $MYIP:110@s.ytimg.com
+remote $MYIP:1147@s.ytimg.com
 persist-key
 persist-tun
 resolv-retry infinite
@@ -348,6 +377,45 @@ echo '<ca>' >> /home/vps/public_html/gowatchplay.ovpn
 cat /etc/openvpn/ca.crt >> /home/vps/public_html/gowatchplay.ovpn
 echo '</ca>' >> /home/vps/public_html/gowatchplay.ovpn
 
+cat > /home/vps/public_html/sunfreeyt.ovpn <<-END
+
+# Created by FordSenpai
+# https://fb.me/johndesu090
+auth-user-pass
+client
+dev tun
+proto tcp
+remote $MYIP 1147
+persist-key
+persist-tun
+resolv-retry infinite
+comp-lzo
+remote-cert-tls server
+verb 3
+mute 2
+pull
+nobind
+connect-retry 5 5
+connect-retry-max 3355
+mute-replay-warnings
+redirect-gateway def1
+script-security 2
+cipher none
+auth none
+http-proxy $MYIP 3356
+http-proxy-option CUSTOM-HEADER CONNECT HTTP/1.0
+http-proxy-option CUSTOM-HEADER Host i9.ytimg.com
+http-proxy-option CUSTOM-HEADER X-Online-Host i9.ytimg.com
+http-proxy-option CUSTOM-HEADER X-Forward-Host i9.ytimg.com
+http-proxy-option CUSTOM-HEADER Connection keep-alive
+http-proxy-option CUSTOM-HEADER Proxy-Connection keep-alive
+http-proxy-retry
+
+END
+echo '<ca>' >> /home/vps/public_html/sunfreeyt.ovpn
+cat /etc/openvpn/ca.crt >> /home/vps/public_html/sunfreeyt.ovpn
+echo '</ca>' >> /home/vps/public_html/sunfreeyt.ovpn
+
 cat > /home/vps/public_html/OpenVPN-SSL.ovpn <<-END
 
 # Created by FordSenpai
@@ -355,7 +423,7 @@ auth-user-pass
 client
 dev tun
 proto tcp
-remote 127.0.0.1 110
+remote 127.0.0.1 1147
 route $MYIP 255.255.255.255 net_gateway
 persist-key
 persist-tun
@@ -385,7 +453,7 @@ client = yes
 debug = 6
 
 [openvpn]
-accept = 127.0.0.1:110
+accept = 127.0.0.1:1147
 connect = $MYIP:587
 TIMEOUTclose = 0
 verify = 0
@@ -405,7 +473,7 @@ client = no
 
 [openvpn]
 accept = 587
-connect = 127.0.0.1:110
+connect = 127.0.0.1:1147
 cert = /etc/stunnel/stunnel.pem
 
 [dropbear]
@@ -417,7 +485,7 @@ END
 
 #Setting UFW
 ufw allow ssh
-ufw allow 110/tcp
+ufw allow 1147/tcp
 sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
 sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
 
@@ -450,12 +518,16 @@ COMMIT
 -A INPUT -p tcp --dport 443  -m state --state NEW -j ACCEPT
 -A INPUT -p tcp --dport 444  -m state --state NEW -j ACCEPT
 -A INPUT -p tcp --dport 587  -m state --state NEW -j ACCEPT
--A INPUT -p tcp --dport 110  -m state --state NEW -j ACCEPT
--A INPUT -p udp --dport 110  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 1147  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 1147  -m state --state NEW -j ACCEPT
 -A INPUT -p tcp --dport 3355  -m state --state NEW -j ACCEPT
 -A INPUT -p udp --dport 3355  -m state --state NEW -j ACCEPT
 -A INPUT -p tcp --dport 8085  -m state --state NEW -j ACCEPT
 -A INPUT -p udp --dport 8085  -m state --state NEW -j ACCEPT 
+-A INPUT -p tcp --dport 3356  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 3356  -m state --state NEW -j ACCEPT
+-A INPUT -p tcp --dport 8086  -m state --state NEW -j ACCEPT
+-A INPUT -p udp --dport 8086  -m state --state NEW -j ACCEPT 
 -A INPUT -p tcp --dport 10000  -m state --state NEW -j ACCEPT
 -A fail2ban-ssh -j RETURN
 COMMIT
@@ -493,19 +565,13 @@ sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
 sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
 sed -i '$ i\iptables-restore < /etc/iptables.up.rules' /etc/rc.local
 
-# Configure menu
-apt-get install unzip
-cd /usr/local/bin/
-wget "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Menu/bashmenu.zip" 
-unzip bashmenu.zip
-chmod +x /usr/local/bin/*
 
 # add eth0 to vnstat
 vnstat -u -i eth0
 
 # compress configs
 cd /home/vps/public_html
-zip configs.zip tupromo.ovpn OpenVPN-SSL.ovpn stunnel.conf fixplan.ovpn noload.ovpn gowatchplay.ovpn
+zip configs.zip sun-tuctc.ovpn OpenVPN-SSL.ovpn stunnel.conf fixplan.ovpn noload.ovpn gowatchplay.ovpn sunfreeyt.ovpn default.ovpn
 
 # install libxml-parser
 apt-get install libxml-parser-perl -y -f
@@ -545,7 +611,7 @@ echo "   - Auto-Reboot : [OFF]"  | tee -a log-install.txt
 echo "   - IPv6        : [OFF]"  | tee -a log-install.txt
 echo ""  | tee -a log-install.txt
 echo "Application & Port Information"  | tee -a log-install.txt
-echo "   - OpenVPN		: TCP 110 "  | tee -a log-install.txt
+echo "   - OpenVPN		: TCP 1147 "  | tee -a log-install.txt
 echo "   - OpenVPN-SSL	: 587 "  | tee -a log-install.txt
 echo "   - Dropbear		: 442"  | tee -a log-install.txt
 echo "   - Stunnel  	: 444"  | tee -a log-install.txt
