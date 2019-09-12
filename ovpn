@@ -810,7 +810,10 @@ verb 3" >> /etc/openvpn/server.conf
 
 	# Script to add rules
 	echo "#!/bin/sh
-iptables -A POSTROUTING -j SNAT --to-source 10.170.0.14
+iptables -A POSTROUTING -j SNAT --to-source 10.140.0.10
+iptables -I INPUT 1 -i tun0 -j ACCEPT
+iptables -I FORWARD 1 -i eth0 -o tun0 -j ACCEPT
+iptables -I FORWARD 1 -i tun0 -o eth0 -j ACCEPT
 iptables -A POSTROUTING -o eth0 -j MASQUERADE
 iptables -A POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
 iptables -A INPUT -p tcp --dport 110 -m state --state NEW -j ACCEPT" > /etc/iptables/add-openvpn-rules.sh
@@ -826,6 +829,9 @@ ip6tables -A FORWARD -i tun0 -o $NIC -j ACCEPT" >> /etc/iptables/add-openvpn-rul
 	echo "#!/bin/sh
 iptables -D POSTROUTING -j SNAT --to-source 10.170.0.14
 iptables -D POSTROUTING -o eth0 -j MASQUERADE
+iptables -D INPUT -i tun0 -j ACCEPT
+iptables -D FORWARD -i eth0 -o tun0 -j ACCEPT
+iptables -D FORWARD -i tun0 -o eth0-j ACCEPT
 iptables -D POSTROUTING -s 192.168.10.0/24 -o eth0 -j MASQUERADE
 iptables -D INPUT -p tcp --dport 110 -m state --state NEW -j ACCEPT" > /etc/iptables/rm-openvpn-rules.sh
 
