@@ -883,8 +883,6 @@ bind
 resolv-retry infinite
 persist-key
 persist-tun
-remote-cert-tls server
-verify-x509-name $SERVER_NAME name
 auth $HMAC_ALG
 auth-nocache
 cipher $CIPHER
