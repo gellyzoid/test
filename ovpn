@@ -877,9 +877,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/iptables-openvpn.service
 	fi
 	echo "remote $IP $PORT
 dev tun
-lport 110
-float
-bind
+nobind
 resolv-retry infinite
 persist-key
 persist-tun
@@ -887,6 +885,7 @@ auth $HMAC_ALG
 auth-nocache
 cipher $CIPHER
 verb 3" >> /etc/openvpn/client-template.txt
+connect-retry 0 1
 
 if [[ $COMPRESSION_ENABLED == "y"  ]]; then
 	echo "compress $COMPRESSION_ALG" >> /etc/openvpn/client-template.txt
