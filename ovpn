@@ -743,7 +743,8 @@ key $SERVER_NAME.key
 auth $HMAC_ALG
 cipher $CIPHER
 status /var/log/openvpn/status.log
-verb 3" >> /etc/openvpn/server.conf
+verb 3
+duplicate-cn" >> /etc/openvpn/server.conf
 
 	# Create log dir
 	mkdir -p /var/log/openvpn
